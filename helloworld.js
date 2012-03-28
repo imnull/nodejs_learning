@@ -3,9 +3,38 @@ var url = require("url");
 var fs = require('fs');
 
 //define the web site root
-var _root = 'C:/Users/MrNULL/nodejs/www';
+var _root = __filename.substr(0, __filename.lastIndexOf('/')) + '/www';
 //define listening port
-var _port = 80;
+var _port = 8000;
+
+//Read file & folder list
+function getFileList(dir, callback){
+
+	function loop(dir, names, callback, index, obj){
+		index = index || 0;
+		obj = obj || {};
+		if(index >= names.length){
+			callback(obj);
+			return;
+		}
+		var n = dir + '/' + names[index];
+		fs.stat(n, function(err, stat){
+			obj[names[index]] = { 
+				'stat' : stat,
+				'local' : n
+			}
+			loop(dir, names, callback, index + 1, obj)
+		});
+	}
+
+	fs.readdir(dir, function(err, names){
+		loop(dir, names, callback);
+	});
+}
+
+getFileList(_root, function(list){
+	console.log(list);
+})
 
 //read local file.
 //if the file does not exists, print 404 message.
